@@ -1,0 +1,26 @@
+{
+  "name": "mcq-scraper-test",
+  "version": "1.0.0",
+  "description": "TestPoint MCQ crawler with Playwright and PostgreSQL",
+  "main": "crawl-all.js",
+  "scripts": {
+    "start": "node crawl-all.js",
+    "scrape": "node scrape.js",
+    "scrape:computer": "node scrape.js https://testpointpk.com/important-mcqs/computer",
+    "crawl:section": "node crawl-section.js",
+    "crawl": "node crawl-all.js",
+    "crawl:debug": "CRAWL_DEBUG=1 HEADLESS=false node crawl-all.js",
+    "db:up": "docker compose up -d",
+    "db:down": "docker compose down",
+    "test": "HEADLESS=true node scrape.js https://testpointpk.com/important-mcqs/computer",
+    "install:browsers": "playwright install chromium"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "pg": "^8.16.3",
+    "playwright": "^1.63.0"
+  }
+}
