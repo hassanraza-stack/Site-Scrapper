@@ -8,7 +8,12 @@
 
 const fs = require("fs");
 const path = require("path");
-const { launchBrowser, gotoListingPage } = require("./lib/browser");
+const {
+  launchBrowser,
+  closeBrowserSession,
+  gotoListingPage,
+  sleep,
+} = require("./lib/browser");
 const { extractMcqsFromPage } = require("./lib/extractMcqs");
 
 const DEFAULT_URL = "https://testpointpk.com/important-mcqs/computer";
@@ -23,18 +28,17 @@ async function main() {
   console.log(`Headless: ${process.env.HEADLESS === "true"}\n`);
 
   const debugHeaded = process.env.HEADLESS !== "true";
-  const { browser, context } = await launchBrowser({
+  const session = await launchBrowser({
     headless: !debugHeaded,
     slowMo: debugHeaded ? 80 : 0,
+    blockAssets: false,
   });
-
-  const page = await context.newPage();
 
   try {
     console.log("Navigating...");
-    await gotoListingPage(page, url);
+    await gotoListingPage(session.page, url);
 
-    const mcqs = await extractMcqsFromPage(page);
+    const mcqs = await extractMcqsFromPage(session.page);
     console.log(`\nScraped ${mcqs.length} MCQs from this page.\n`);
 
     const preview = mcqs.slice(0, 3);
@@ -74,17 +78,19 @@ async function main() {
 
     if (debugHeaded) {
       console.log("\nKeeping browser open 5s for visual check...");
-      await page.waitForTimeout(5000);
+      await sleep(5000);
     }
   } catch (err) {
     console.error("\nScrape failed:", err.message);
     const shot = path.join(OUTPUT_DIR, "error-screenshot.png");
     fs.mkdirSync(OUTPUT_DIR, { recursive: true });
-    await page.screenshot({ path: shot, fullPage: true }).catch(() => {});
+    await session.page
+      .screenshot({ path: shot, fullPage: true })
+      .catch(() => {});
     console.error(`Screenshot (if possible): ${shot}`);
     process.exitCode = 1;
   } finally {
-    await browser.close();
+    await closeBrowserSession(session);
     console.log("Browser closed.");
   }
 }

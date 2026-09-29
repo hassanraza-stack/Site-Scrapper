@@ -3,12 +3,13 @@
  * Crawl all sections from config/sections.json into PostgreSQL.
  *
  * Resume: crawl_jobs.status = done is skipped; pending/failed/running re-run.
- * Dedup: mcqs.source_id unique; repeats only add row in mcq_sections.
+ * Crashes: browser is recreated; section continues (does not skip to next).
  *
  * Usage:
  *   node crawl-all.js
- *   node crawl-all.js --section computer
- *   CRAWL_DEBUG=1 HEADLESS=false node crawl-all.js --section computer --max-pages 1
+ *   npm start
+ *   npm run crawl:resume -- pak-study
+ *   npm run crawl:status
  */
 
 const fs = require("fs");
@@ -50,16 +51,15 @@ async function printProgress() {
     return;
   }
   const complete = rows.filter((r) => r.crawl_status === "complete").length;
-  const partial = rows.filter((r) => r.crawl_status === "partial").length;
-  const pending = rows.filter((r) => r.crawl_status !== "complete").length;
+  const incomplete = rows.filter((r) => r.crawl_status !== "complete");
   console.log(
-    `  Progress: ${complete} complete, ${partial} partial, ${pending} still need work (of ${rows.length} known)`
+    `  Progress: ${complete} complete, ${incomplete.length} still need work (of ${rows.length} known)`
   );
-  for (const r of rows) {
-    if (r.crawl_status === "complete") continue;
+  for (const r of incomplete) {
     console.log(
-      `    · ${r.slug}: ${r.crawl_status} (${r.pages_done}/${r.max_page || "?"} pages done, ${r.pages_left} left)`
+      `    · ${r.slug}: ${r.crawl_status} (${r.pages_done}/${r.max_page || "?"} done, ${r.pages_left} left)`
     );
+    console.log(`        resume: npm run crawl:resume -- ${r.slug}`);
   }
 }
 
@@ -85,9 +85,8 @@ async function main() {
 
   console.log("");
   console.log("TestPoint auto-crawl");
-  console.log("  Order: Important MCQs nav → Past Papers nav (from config/sections.json)");
-  console.log("  Resume: skips crawl_jobs that are already done");
-  console.log("  Dedup: one mcqs row per question id; mcq_sections links which nav papers it appears in");
+  console.log("  Crash recovery: recreate browser, stay on same section");
+  console.log("  Resume: skips done pages; use npm run crawl:resume -- <slug>");
   console.log(`  Sections this run: ${list.length}`);
   console.log("");
   await printProgress();
@@ -106,19 +105,21 @@ async function main() {
     );
     console.log(section.url);
 
-    try {
-      const result = await crawlSection(section, {
-        maxPages,
-        navProgress: { index: i + 1, total: list.length },
-        browserOptions:
-          process.env.CRAWL_DEBUG === "1"
-            ? { headless: false, slowMo: 80 }
-            : {},
-      });
-      sumNew += result.newMcqs || 0;
-      sumLinked += result.linkedOnly || 0;
-    } catch (err) {
-      console.error(`Section failed: ${section.slug}`, err.message);
+    const result = await crawlSection(section, {
+      maxPages,
+      navProgress: { index: i + 1, total: list.length },
+      browserOptions:
+        process.env.CRAWL_DEBUG === "1"
+          ? { headless: false, slowMo: 80, blockAssets: false }
+          : {},
+    });
+    sumNew += result.newMcqs || 0;
+    sumLinked += result.linkedOnly || 0;
+    if (result.error) {
+      console.error(
+        `[${section.slug}] finished with error (pending pages remain): ${result.error}`
+      );
+      console.error(`  Resume: npm run crawl:resume -- ${section.slug}`);
     }
   }
 
@@ -134,6 +135,10 @@ async function main() {
   console.log(`This run: ${sumNew} new MCQs, ${sumLinked} existing MCQs linked to another section`);
   console.log(`Elapsed: ${((Date.now() - started) / 1000 / 60).toFixed(1)} min`);
   await printProgress();
+  console.log("\nCommands:");
+  console.log("  npm run crawl:status");
+  console.log("  npm run crawl:resume -- islamic-studies-mcqs");
+  console.log("  npm run crawl:resume -- pak-study");
   await closePool();
 }
 
