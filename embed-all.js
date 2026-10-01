@@ -13,6 +13,8 @@
  *   EMBED_BATCH_SIZE     default 64
  *   EMBED_MAX_ATTEMPTS   default 5
  *   EMBED_DELAY_MS       pause between batches (default 200)
+ *   EMBED_MAX_CHARS      per-input char budget (default 28000, under 8192 tokens)
+ *   EMBED_RESET_FAILED   default 1 — re-queue failed rows at start
  */
 
 const { loadEnv } = require("./lib/env");
@@ -23,25 +25,74 @@ const {
   markEmbedFailed,
   getEmbedProgress,
   countRetryableEmbeds,
+  resetFailedEmbeds,
   closePool,
 } = require("./lib/db");
 const {
   embedModel,
   embedBatchSize,
   embedMaxAttempts,
+  maxEmbedChars,
   buildEmbedText,
   estimateTokens,
   createEmbeddings,
+  embedOneWithTruncate,
+  isInputTooLongError,
   sleep,
 } = require("./lib/embed");
 
 loadEnv();
+
+async function embedBatchOrFallback(rows, texts, model) {
+  let embedded = 0;
+  let failed = 0;
+  let tokens = 0;
+
+  try {
+    const { embeddings, usage } = await createEmbeddings(texts);
+    for (let i = 0; i < rows.length; i++) {
+      await markEmbedDone(rows[i].source_id, texts[i], embeddings[i], model);
+      embedded += 1;
+    }
+    tokens += usage?.total_tokens || texts.reduce((s, t) => s + estimateTokens(t), 0);
+    if (usage?.total_tokens) {
+      console.log(`  API usage tokens: ${usage.total_tokens}`);
+    }
+    return { embedded, failed, tokens };
+  } catch (e) {
+    console.error(`  Batch failed: ${e.message}`);
+    if (isInputTooLongError(e) || e.status === 400) {
+      console.log("  Falling back to per-item embeds for this batch...");
+    } else {
+      console.log("  Falling back to per-item embeds after batch error...");
+    }
+
+    for (let i = 0; i < rows.length; i++) {
+      try {
+        const one = await embedOneWithTruncate(texts[i]);
+        await markEmbedDone(rows[i].source_id, one.text, one.embedding, model);
+        embedded += 1;
+        tokens += one.usage?.total_tokens || estimateTokens(one.text);
+      } catch (itemErr) {
+        console.error(
+          `  Item failed ${rows[i].source_id}: ${String(itemErr.message).slice(0, 200)}`
+        );
+        await markEmbedFailed(rows[i].source_id, String(itemErr.message).slice(0, 500));
+        failed += 1;
+      }
+    }
+    return { embedded, failed, tokens };
+  }
+}
 
 async function main() {
   const model = embedModel();
   const batchSize = embedBatchSize();
   const maxAttempts = embedMaxAttempts();
   const delayMs = parseInt(process.env.EMBED_DELAY_MS || "200", 10);
+  const resetFailed =
+    (process.env.EMBED_RESET_FAILED || "1").toLowerCase() !== "0" &&
+    (process.env.EMBED_RESET_FAILED || "1").toLowerCase() !== "false";
 
   if (!process.env.OPENROUTER_API_KEY) {
     throw new Error("OPENROUTER_API_KEY is not set (see .env.example)");
@@ -51,8 +102,14 @@ async function main() {
   console.log(`Model: ${model}`);
   console.log(`Batch size: ${batchSize}`);
   console.log(`Max attempts: ${maxAttempts}`);
+  console.log(`Max chars / input: ${maxEmbedChars()}`);
 
   await ensureSchema();
+
+  if (resetFailed) {
+    const n = await resetFailedEmbeds();
+    if (n > 0) console.log(`Re-queued ${n} previously failed MCQs`);
+  }
 
   let progress = await getEmbedProgress();
   let remaining = await countRetryableEmbeds(maxAttempts);
@@ -93,26 +150,10 @@ async function main() {
       `\n[batch ${batches}] embedding ${rows.length} MCQs (~${batchTokens} tokens est) · remaining before=${remaining}`
     );
 
-    try {
-      const { embeddings, usage } = await createEmbeddings(texts);
-      for (let i = 0; i < rows.length; i++) {
-        await markEmbedDone(rows[i].source_id, texts[i], embeddings[i], model);
-        embeddedThisRun += 1;
-      }
-      tokensEst += usage?.total_tokens || batchTokens;
-      if (usage?.total_tokens) {
-        console.log(`  API usage tokens: ${usage.total_tokens}`);
-      }
-    } catch (e) {
-      console.error(`  Batch failed: ${e.message}`);
-      for (const row of rows) {
-        await markEmbedFailed(row.source_id, e.message.slice(0, 500));
-        failedThisRun += 1;
-      }
-      // Back off before next batch on API errors
-      await sleep(Math.max(delayMs, 2000));
-      continue;
-    }
+    const result = await embedBatchOrFallback(rows, texts, model);
+    embeddedThisRun += result.embedded;
+    failedThisRun += result.failed;
+    tokensEst += result.tokens;
 
     progress = await getEmbedProgress();
     remaining = await countRetryableEmbeds(maxAttempts);
@@ -138,7 +179,7 @@ async function main() {
     total: progress.total,
     retryable_left: remaining,
     embedded_this_run: embeddedThisRun,
-    failed_batches_rows: failedThisRun,
+    failed_this_run: failedThisRun,
     tokens_est: tokensEst,
     cost_est_usd_at_0_02_per_m: estCost,
     elapsed_min: elapsedMin,
