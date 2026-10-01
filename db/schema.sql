@@ -49,6 +49,11 @@ CREATE TABLE IF NOT EXISTS mcqs (
 );
 
 -- Index created in ensureSchema after migrate (existing DBs lack embed_* until ALTER)
+-- HNSW cosine index for semantic search (also created in ensureSchema):
+-- CREATE INDEX IF NOT EXISTS idx_mcqs_embedding_hnsw
+--   ON mcqs USING hnsw (embedding vector_cosine_ops)
+--   WITH (m = 16, ef_construction = 64)
+--   WHERE embedding IS NOT NULL;
 
 CREATE TABLE IF NOT EXISTS mcq_options (
   mcq_id VARCHAR(64) NOT NULL REFERENCES mcqs(source_id) ON DELETE CASCADE,
