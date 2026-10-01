@@ -37,7 +37,6 @@ const {
   estimateTokens,
   createEmbeddings,
   embedOneWithTruncate,
-  isInputTooLongError,
   sleep,
 } = require("./lib/embed");
 
@@ -49,23 +48,20 @@ async function embedBatchOrFallback(rows, texts, model) {
   let tokens = 0;
 
   try {
-    const { embeddings, usage } = await createEmbeddings(texts);
+    const { embeddings, usage, inputs } = await createEmbeddings(texts);
+    const savedTexts = inputs || texts;
     for (let i = 0; i < rows.length; i++) {
-      await markEmbedDone(rows[i].source_id, texts[i], embeddings[i], model);
+      await markEmbedDone(rows[i].source_id, savedTexts[i], embeddings[i], model);
       embedded += 1;
     }
-    tokens += usage?.total_tokens || texts.reduce((s, t) => s + estimateTokens(t), 0);
+    tokens += usage?.total_tokens || savedTexts.reduce((s, t) => s + estimateTokens(t), 0);
     if (usage?.total_tokens) {
       console.log(`  API usage tokens: ${usage.total_tokens}`);
     }
     return { embedded, failed, tokens };
   } catch (e) {
     console.error(`  Batch failed: ${e.message}`);
-    if (isInputTooLongError(e) || e.status === 400) {
-      console.log("  Falling back to per-item embeds for this batch...");
-    } else {
-      console.log("  Falling back to per-item embeds after batch error...");
-    }
+    console.log("  Falling back to per-item embeds for this batch...");
 
     for (let i = 0; i < rows.length; i++) {
       try {
