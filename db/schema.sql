@@ -26,6 +26,9 @@ CREATE INDEX IF NOT EXISTS idx_crawl_jobs_pending
   ON crawl_jobs (section_id, status)
   WHERE status IN ('pending', 'failed', 'running');
 
+-- pgvector for semantic search embeddings (OpenAI text-embedding-3-small = 1536 dims)
+CREATE EXTENSION IF NOT EXISTS vector;
+
 -- One row per unique question (TestPoint /mcqs/{id}/ or content hash). Never duplicated.
 CREATE TABLE IF NOT EXISTS mcqs (
   source_id VARCHAR(64) PRIMARY KEY,
@@ -35,8 +38,19 @@ CREATE TABLE IF NOT EXISTS mcqs (
   correct_text TEXT,
   explanation TEXT,
   source_url TEXT,
-  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  embed_text TEXT,
+  embedding vector(1536),
+  embedding_model TEXT,
+  embedded_at TIMESTAMPTZ,
+  embed_status VARCHAR(16) NOT NULL DEFAULT 'pending',
+  embed_error TEXT,
+  embed_attempts INT NOT NULL DEFAULT 0
 );
+
+CREATE INDEX IF NOT EXISTS idx_mcqs_embed_pending
+  ON mcqs (embed_status)
+  WHERE embed_status IN ('pending', 'failed');
 
 CREATE TABLE IF NOT EXISTS mcq_options (
   mcq_id VARCHAR(64) NOT NULL REFERENCES mcqs(source_id) ON DELETE CASCADE,
