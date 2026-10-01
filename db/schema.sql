@@ -48,9 +48,7 @@ CREATE TABLE IF NOT EXISTS mcqs (
   embed_attempts INT NOT NULL DEFAULT 0
 );
 
-CREATE INDEX IF NOT EXISTS idx_mcqs_embed_pending
-  ON mcqs (embed_status)
-  WHERE embed_status IN ('pending', 'failed');
+-- Index created in ensureSchema after migrate (existing DBs lack embed_* until ALTER)
 
 CREATE TABLE IF NOT EXISTS mcq_options (
   mcq_id VARCHAR(64) NOT NULL REFERENCES mcqs(source_id) ON DELETE CASCADE,
