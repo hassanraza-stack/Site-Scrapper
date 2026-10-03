@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Kamyab.ai — Ratta Nahi, Smart Prep (75s commercial)</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f6fbf7;--ink:#14231a;--mut:#5d7066;--g:#3fcf74;--gd:#27b15f;--gl:#e3f8ea;
+  --line:#d5e8db;--warm:#f1efe8;--warm2:#dcd9ce;--warm-ink:#3a3220;
+  --warn:#d08a1f;--bad:#e2533f;--bad-bg:#ffe3e0;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+html,body{height:100%;margin:0}
+body{
+  background:var(--bg);color:var(--ink);
+  font-family:'Outfit',system-ui,sans-serif;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;
+}
+#stage{
+  position:relative;width:min(100%,calc((100vh - 70px)*16/9));aspect-ratio:16/9;
+  overflow:hidden;container-type:inline-size;background:#fff;
+  border-radius:1.2cqw;box-shadow:0 1.2em 3.5em rgba(30,120,70,.18);
+}
+.sc{
+  position:absolute;inset:0;opacity:0;visibility:hidden;pointer-events:none;
+  display:flex;align-items:center;justify-content:center;gap:4.5em;
+  font-size:1.5cqw;padding:0 5.5%;color:var(--ink);
+  will-change:opacity;
+}
+.sc-zoom{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:4.5em;
+  padding:inherit;will-change:transform;
+}
+.sc.mint{
+  background:
+    radial-gradient(ellipse 55% 50% at 15% 20%,#c6f5d999,transparent 60%),
+    radial-gradient(ellipse 50% 55% at 90% 85%,#a8efc088,transparent 55%),
+    linear-gradient(145deg,#f7fdf9 0%,#e8f8ef 45%,#d4f3e2 100%);
+}
+.sc.mint::before{
+  content:"";position:absolute;inset:0;pointer-events:none;opacity:.3;z-index:0;
+  background-image:
+    linear-gradient(rgba(63,207,116,.06) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(63,207,116,.06) 1px,transparent 1px);
+  background-size:4.5em 4.5em;
+}
+.sc.warm{
+  background:
+    radial-gradient(ellipse 60% 50% at 80% 20%,#c9c4b655,transparent 55%),
+    linear-gradient(135deg,#f3efe6,#e0ddd3 60%,#d5d1c6);
+}
+.sc.triumph{
+  background:
+    radial-gradient(ellipse 70% 60% at 50% 30%,#d9f7e4,transparent 65%),
+    linear-gradient(180deg,#fff 0%,#e9fbef 55%,#b8edcc 100%);
+}
+.sc.brand{
+  background:radial-gradient(circle at 50% 42%,#d4f5e3 0%,#f6fbf7 55%,#fff 100%);
+}
+.sc.brand .sc-zoom{flex-direction:column;gap:.55em;text-align:center}
+
+/* Reveals — no blur stretch */
+.rv{opacity:0;transform:translateY(1em);transition:opacity .5s ease,transform .55s cubic-bezier(.22,1,.36,1)}
+.rv.in{opacity:1;transform:none}
+.rv.slide-l{transform:translateX(-1.5em)}
+.rv.slide-l.in{transform:none}
+.rv.slide-r{transform:translateX(1.5em)}
+.rv.slide-r.in{transform:none}
+.rv.pop{transform:scale(.85)}
+.rv.pop.in{transform:scale(1)}
+
+.col{max-width:34em;position:relative;z-index:2}
+.display{font-weight:800;letter-spacing:0;line-height:1.05;margin:0}
+.big{font-size:3.6em;font-weight:800;line-height:1.08;letter-spacing:0;margin:0}
+.sub{font-size:1.45em;color:var(--mut);margin:.5em 0 0;line-height:1.45;font-weight:500;letter-spacing:0}
+.tag{
+  display:inline-flex;align-items:center;gap:.45em;
+  font-size:1em;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--gd);margin-bottom:.9em;
+}
+.tag::before{content:"";width:.5em;height:.5em;border-radius:50%;background:var(--g);box-shadow:0 0 0 .3em #3fcf7433}
+.gr{color:var(--gd)}
+.eyebrow{font-size:1.1em;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--mut);margin-bottom:.7em}
+
+/* Phone — light / white UI */
+.phone{
+  width:20em;height:37.5em;border-radius:2.6em;background:#fff;
+  border:.3em solid #e2eee6;padding:0;overflow:hidden;position:relative;flex:none;z-index:2;
+  box-shadow:0 2em 4.5em rgba(30,120,70,.2),0 0 0 1px #d5e8db;
+}
+.phone.old{
+  background:#cfcbc0;border-color:#a8a498;
+  box-shadow:0 1.4em 3.5em #0003;
+}
+.phone-notch{
+  position:absolute;top:.5em;left:50%;transform:translateX(-50%);
+  width:6.5em;height:1.25em;background:#14231a;border-radius:1em;z-index:4;
+}
+.phone-screen{position:absolute;inset:0;padding:2.3em 1.1em 1.2em;overflow:hidden;display:flex;flex-direction:column;background:#fafdfb}
+.phone.old .phone-screen{padding:0;background:transparent}
+.status{
+  display:flex;justify-content:space-between;align-items:center;
+  font-size:.8em;font-weight:700;color:var(--mut);margin-bottom:.9em;
+}
+.app-head{display:flex;align-items:center;gap:.65em;margin-bottom:1em}
+.app-logo{width:2.1em;height:2.1em;flex:none}
+.app-title{font-weight:800;font-size:1.45em;color:var(--ink);letter-spacing:0}
+.app-title span{color:var(--gd)}
+.ui-card{
+  background:#fff;border:1px solid var(--line);border-radius:1em;
+  padding:.9em 1em;margin-bottom:.65em;color:var(--ink);
+  box-shadow:0 .2em .8em rgba(30,120,70,.06);
+}
+.ui-muted{color:var(--mut);font-size:.9em}
+.ui-search{
+  display:flex;align-items:center;gap:.55em;background:#fff;
+  border:1.5px solid var(--line);border-radius:1em;padding:.8em .95em;margin-bottom:.8em;color:var(--ink);
+  box-shadow:0 .15em .6em rgba(30,120,70,.05);
+}
+.ui-search:focus-within,.ui-search.active{border-color:var(--g);box-shadow:0 0 0 .25em #3fcf7433}
+.ui-search .cursor{display:inline-block;width:.1em;height:1.05em;background:var(--g);margin-left:.1em;animation:bl .9s steps(2) infinite;vertical-align:-.12em}
+.badge{
+  display:inline-flex;align-items:center;gap:.25em;font-size:.75em;font-weight:700;
+  background:var(--gl);color:var(--gd);padding:.22em .5em;border-radius:.35em;margin-top:.4em;
+}
+.opt{padding:.5em .8em;border-radius:.65em;background:#f3faf5;margin:.3em 0;color:var(--ink);border:1px solid transparent}
+.opt.wrong{background:var(--bad-bg);border-color:#e2533f44;color:var(--bad)}
+.opt.right{background:var(--gl);border-color:#3fcf7455;color:var(--gd);font-weight:700}
+.bar{height:.55em;border-radius:1em;background:#e8f2eb;overflow:hidden;margin:.3em 0 .85em}
+.bar i{display:block;height:100%;width:0;border-radius:1em;transition:width 1.5s cubic-bezier(.2,.8,.2,1)}
+.in .bar i{width:var(--w)}
+
+.stamp{
+  position:absolute;border:.25em solid var(--bad);color:var(--bad);
+  font-weight:800;font-size:1.55em;padding:.22em .5em;letter-spacing:0;
+  transform:rotate(-12deg) scale(1.5);opacity:0;transition:.28s cubic-bezier(.22,1.2,.36,1);background:#fffc;z-index:3;
+}
+.stamp.in{opacity:1;transform:rotate(-12deg) scale(1)}
+
+.flip{perspective:80em}
+.fi{position:relative;width:100%;height:100%;transition:transform .8s cubic-bezier(.5,0,.2,1);transform-style:preserve-3d}
+.flip.in .fi{transform:rotateY(180deg)}
+.ff,.fb{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;margin:0}
+.fb{transform:rotateY(180deg)}
+
+#ov{
+  position:absolute;inset:0;z-index:9;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:1em;
+  background:radial-gradient(circle at 50% 40%,#d9f7e4,#f6fbf7 55%,#fff 80%);
+  text-align:center;cursor:pointer;
+}
+#ov h2{font-size:4.8cqw;margin:0;letter-spacing:0;font-weight:800}
+#ov p{margin:0;color:var(--mut);font-size:1.35cqw;font-weight:500}
+.btn{
+  background:var(--g);color:#0b2415;border:0;border-radius:3em;
+  padding:.8em 2.2em;font:800 1.75cqw 'Outfit',sans-serif;cursor:pointer;
+  box-shadow:0 .45em 1.4em rgba(63,207,116,.45);letter-spacing:0;
+}
+#bar{
+  width:min(100%,calc((100vh - 70px)*16/9));display:flex;gap:8px;align-items:center;
+  font-size:13px;padding:0 4px;box-sizing:border-box;
+}
+#bar button{background:var(--gl);color:var(--ink);border:0;border-radius:6px;padding:6px 10px;cursor:pointer;font:600 13px 'Outfit',sans-serif}
+#bar button:focus-visible,.btn:focus-visible{outline:2px solid var(--gd);outline-offset:2px}
+#prog{flex:1;height:5px;background:#dcebe1;border-radius:3px;overflow:hidden}
+#prog i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--gd),var(--g))}
+
+.desk{position:relative;width:28em;height:24em;flex:none;z-index:2}
+.paper{
+  position:absolute;width:14em;height:18em;background:#fbf8ee;border-radius:.25em;
+  box-shadow:0 .6em 2.2em #0003;padding:1.1em;color:var(--warm-ink);font-size:.78em;
+  overflow:hidden;line-height:1.45;
+}
+.paper b{font-size:1.1em;display:block;margin-bottom:.4em;font-weight:800}
+.paper.sticky{width:10em;height:10em;background:#ffe27a;box-shadow:0 .4em 1.5em #0002}
+.tea{
+  position:absolute;right:0;bottom:1em;width:4.5em;height:5.5em;
+  background:linear-gradient(180deg,#8b5a2b,#6b4320);border-radius:.3em .3em 1.2em 1.2em;
+  box-shadow:0 .5em 1.5em #0003;
+}
+.tea::before{content:"";position:absolute;top:.4em;left:.4em;right:.4em;height:1.8em;background:#c4a574;border-radius:.2em;opacity:.7}
+.tea::after{content:"";position:absolute;right:-1.2em;top:1.5em;width:1.4em;height:2em;border:.35em solid #6b4320;border-left:0;border-radius:0 1em 1em 0}
+
+.pdf{
+  position:absolute;left:0;right:0;top:-20px;bottom:0;
+  background:repeating-linear-gradient(#bdb8a8 0 7px,#e6e2d6 7px 18px);
+  animation:scr .14s linear infinite;
+}
+.pdf-overlay{position:absolute;inset:0;background:linear-gradient(180deg,#0000 40%,#0004);pointer-events:none}
+.load-chip{
+  position:absolute;top:1.4em;left:1.2em;right:1.2em;
+  background:#fffc;padding:.55em .8em;border-radius:.5em;font-size:1em;font-weight:700;
+  color:#5a5348;box-shadow:0 .3em 1em #0002;z-index:2;
+}
+.load-bar{height:.35em;background:#e0ddd3;border-radius:1em;margin-top:.45em;overflow:hidden}
+.load-bar i{display:block;height:100%;width:35%;background:var(--warn);animation:loadpulse 1.2s ease-in-out infinite}
+
+.result-slip{
+  position:relative;background:#fff;width:23em;padding:1.9em 2em;border-radius:.4em;z-index:2;
+  box-shadow:0 1.8em 4.5em #00000022,0 0 0 1px #e8e4d8;
+  transform:scale(calc(1 + var(--p,0)*.08));
+}
+.result-slip::before{content:"";position:absolute;top:0;left:0;right:0;height:.4em;background:linear-gradient(90deg,#b8b2a4,var(--bad))}
+.result-head{font-weight:800;font-size:1.25em;letter-spacing:0}
+.result-meta{margin:.6em 0 1.1em;color:var(--mut);font-size:1.1em;font-weight:500}
+.result-score{font-size:5.2em;font-weight:800;line-height:1;letter-spacing:0}
+.result-cut{font-size:1.25em;margin-top:.55em;font-weight:600}
+
+.geo-ring{position:absolute;border:1px solid rgba(63,207,116,.25);border-radius:50%;pointer-events:none;z-index:0}
+.geo-blob{position:absolute;border-radius:50%;pointer-events:none;filter:blur(2em);background:radial-gradient(circle,#6fe09a88,transparent 70%);z-index:0}
+
+.feature-list{display:flex;flex-direction:column;gap:.5em;margin-top:.25em}
+.feature-row{
+  display:flex;align-items:center;gap:.7em;padding:.7em .85em;
+  background:#fff;border:1px solid var(--line);border-radius:.8em;color:var(--ink);font-size:1em;font-weight:600;
+  box-shadow:0 .15em .5em rgba(30,120,70,.05);
+}
+.feature-row svg{width:1.3em;height:1.3em;flex:none;stroke:var(--gd);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+.notif{
+  background:#fff;border-radius:1em;padding:1.1em 1.4em;display:inline-flex;align-items:center;gap:1em;
+  box-shadow:0 .8em 2.5em rgba(30,120,70,.2);text-align:left;min-width:20em;
+}
+.notif-icon{
+  width:2.6em;height:2.6em;border-radius:50%;background:var(--gl);
+  display:flex;align-items:center;justify-content:center;flex:none;
+}
+.notif-icon svg{width:1.3em;height:1.3em;stroke:var(--gd);fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+.notif b{display:block;font-size:1.25em;color:var(--gd);letter-spacing:0;font-weight:800}
+.notif span{font-size:1em;color:var(--mut);font-weight:500}
+
+.cta-pill{
+  margin-top:.5em;background:var(--g);color:#0b2415;
+  font-weight:800;font-size:1.55em;padding:.5em 1.6em;border-radius:3em;
+  box-shadow:0 .45em 1.4em rgba(63,207,116,.45);letter-spacing:0;display:inline-block;
+}
+.reason-panel{
+  background:var(--gl);border:1px solid #b8e8c8;border-radius:1em;padding:1em;
+  color:var(--ink);font-size:1.05em;line-height:1.45;
+}
+.reason-panel b{color:var(--gd);display:block;margin-bottom:.35em;font-size:1.1em;font-weight:800}
+.explain-btn{
+  background:var(--g);color:#0b2415;padding:.5em 1.2em;border-radius:2em;
+  display:inline-flex;align-items:center;gap:.4em;font-weight:800;font-size:1.05em;
+  box-shadow:0 .35em 1em rgba(63,207,116,.4);align-self:flex-start;
+}
+.explain-btn svg{width:1.05em;height:1.05em;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round}
+
+/* New logo mark */
+.logo-mark{overflow:visible}
+.logo-mark .ring{fill:none;stroke:#3fcf74;stroke-width:3;opacity:.35}
+.logo-mark .node{fill:#3fcf74}
+.logo-mark .tick{fill:none;stroke:#27b15f;stroke-width:5;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:80;stroke-dashoffset:80}
+.logo-mark .k-stem,.logo-mark .k-arm{fill:none;stroke:#14231a;stroke-width:6;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:120;stroke-dashoffset:120}
+.logo-mark.anim .tick{animation:drawTick .7s .35s ease forwards}
+.logo-mark.anim .k-stem{animation:drawPath .55s .1s ease forwards}
+.logo-mark.anim .k-arm{animation:drawPath .55s .25s ease forwards}
+.logo-mark.anim .ring{animation:ringPulse 2s .8s ease-in-out infinite}
+.logo-mark.anim .node{animation:nodePop .4s .5s cubic-bezier(.22,1.4,.36,1) both}
+.brand-mark{width:8em;height:8em}
+.app-logo.logo-mark .k-stem,.app-logo.logo-mark .k-arm{stroke-width:7;stroke:#14231a}
+.app-logo.logo-mark .tick{stroke-width:6}
+
+@keyframes drawTick{to{stroke-dashoffset:0}}
+@keyframes drawPath{to{stroke-dashoffset:0}}
+@keyframes ringPulse{0%,100%{transform:scale(1);opacity:.35}50%{transform:scale(1.08);opacity:.55}}
+@keyframes nodePop{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
+@keyframes fl{to{transform:translate(2em,1.5em) scale(1.1)}}
+@keyframes scr{to{transform:translateY(18px)}}
+@keyframes bl{50%{opacity:.15}}
+@keyframes loadpulse{0%,100%{width:28%}50%{width:72%}}
+@keyframes floaty{0%,100%{transform:translateY(0) rotate(var(--r,0deg))}50%{transform:translateY(-.5em) rotate(var(--r,0deg))}}
+@keyframes pulse-ring{0%{transform:scale(.92);opacity:.55}100%{transform:scale(1.12);opacity:0}}
+
+.float{animation:floaty 4.5s ease-in-out infinite}
+.float.d2{animation-delay:-1.5s}.float.d3{animation-delay:-3s}
+
+@media (prefers-reduced-motion:reduce){
+  .pdf,.ui-search .cursor,.float,.load-bar i,.logo-mark.anim .ring{animation:none}
+  .logo-mark .tick,.logo-mark .k-stem,.logo-mark .k-arm{stroke-dashoffset:0}
+}
+</style></head><body>
+<div id="stage">
+<canvas id="cv" width="1280" height="720" style="position:absolute;inset:0;width:100%;height:100%;z-index:3;pointer-events:none"></canvas>
+
+<!-- 0 -->
+<section class="sc warm" data-sfx="slide">
+  <div class="sc-zoom">
+    <div class="desk">
+      <div class="paper float" style="left:0;top:3em;--r:-9deg;transform:rotate(-9deg)">
+        <b>PPSC COMPILATION</b>
+        Q1 … Q2 … Q3 …<br>500 pages of unsorted MCQs.<br>Answer key at the back — page 400?
+      </div>
+      <div class="paper float d2" style="left:6em;top:.2em;--r:7deg;transform:rotate(7deg);width:13em;height:12em">
+        <b>WhatsApp</b>
+        MCQs group 47<br>1,203 unread messages<br><span style="opacity:.5">…keys galat hain bhai</span>
+      </div>
+      <div class="paper sticky float d3" style="left:14em;top:8em;--r:-4deg;transform:rotate(-4deg)">
+        <b style="font-size:1.3em">Revise<br>Pak Affairs!!</b>
+        <div style="margin-top:1.4em;opacity:.6">again… and again…</div>
+      </div>
+      <div class="tea"></div>
+    </div>
+    <div class="col">
+      <div class="eyebrow rv" data-at="0.15" data-sfx="pop">The old way</div>
+      <div class="display rv" data-at="0.25" data-sfx="whoosh" style="font-size:5.8em">2<span style="animation:bl 1s steps(2) infinite">:</span>30 <span style="font-size:.4em;font-weight:700;opacity:.55">AM</span></div>
+      <p class="big rv" data-at="1.5" data-sfx="pop" style="font-size:3.2em;margin-top:.3em"><span id="cnt">0</span></p>
+      <p class="sub rv" data-at="1.7">unorganised MCQs. Zero system.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 1 -->
+<section class="sc warm" data-sfx="slide">
+  <div class="sc-zoom">
+    <div class="phone old">
+      <div class="phone-screen">
+        <div class="pdf"></div>
+        <div class="pdf-overlay"></div>
+        <div class="load-chip">Loading scan… 80 MB<div class="load-bar"><i></i></div></div>
+        <div class="stamp" data-at="9.6" data-sfx="stamp">KEY ≠ ANSWER</div>
+      </div>
+    </div>
+    <div class="col">
+      <h2 class="big rv slide-r" data-at="6.5" data-sfx="slide">Wrong keys.</h2>
+      <h2 class="big rv slide-r" data-at="8.1" data-sfx="slide" style="color:var(--warn)">Lost time.</h2>
+      <h2 class="big rv slide-r" data-at="9.7" data-sfx="slide" style="color:var(--bad)">Rote learning.</h2>
+      <p class="sub rv" data-at="10.4" style="max-width:14em">Scanned PDFs. Broken sites. Ratta that vanishes in the hall.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 2 -->
+<section class="sc warm" data-sfx="slide">
+  <div class="sc-zoom">
+    <div class="result-slip">
+      <div class="result-head">PPSC · Result Slip</div>
+      <div class="result-meta">Candidate: Ali · Junior Clerk / Assistant</div>
+      <div class="result-score"><span id="score">0</span><span style="font-size:.32em;color:var(--mut);font-weight:700"> / 100</span></div>
+      <div class="result-cut">Cut-off: <b>69</b></div>
+      <div class="stamp" data-at="14.8" data-sfx="stamp">NOT SELECTED</div>
+    </div>
+    <h2 class="big rv slide-l" data-at="15.3" data-sfx="whoosh" style="max-width:7em">Failed by<br><span style="color:var(--bad)">1 mark.</span></h2>
+  </div>
+</section>
+
+<!-- 3 -->
+<section class="sc mint" data-sfx="whoosh">
+  <div class="sc-zoom">
+    <div class="geo-blob" style="width:28em;height:28em;left:-6em;top:-8em;animation:fl 8s ease-in-out infinite alternate"></div>
+    <div class="geo-blob" style="width:22em;height:22em;right:-4em;bottom:-10em;animation:fl 7s ease-in-out infinite alternate-reverse;background:radial-gradient(circle,#c6f56d66,transparent 70%)"></div>
+    <div class="phone rv pop" data-at="20.5" data-sfx="pop">
+      <div class="phone-notch"></div>
+      <div class="phone-screen">
+        <div class="status"><span>9:41</span><span>●●●</span></div>
+        <div class="app-head">
+          <svg class="app-logo logo-mark anim" viewBox="0 0 100 100"><g transform-origin="50 50">
+            <circle class="ring" cx="50" cy="50" r="42"/>
+            <path class="k-stem" d="M32 22v56"/>
+            <path class="k-arm" d="M32 52 L58 28 M36 50 L68 78"/>
+            <path class="tick" d="M48 58 L60 70 L82 40"/>
+            <circle class="node" cx="32" cy="22" r="4"/>
+            <circle class="node" cx="68" cy="78" r="3.5"/>
+            <circle class="node" cx="82" cy="40" r="3.5"/>
+          </g></svg>
+          <div class="app-title">Kamyab<span>.ai</span></div>
+        </div>
+        <div class="ui-card">
+          <div style="font-weight:700;font-size:1.1em">Salaam, Ali</div>
+          <div class="ui-muted" style="margin-top:.2em">Aaj ka target: 40 MCQs</div>
+        </div>
+        <div class="feature-list">
+          <div class="feature-row rv" data-at="22" data-sfx="pop"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3-3"/></svg>Search by memory</div>
+          <div class="feature-row rv" data-at="22.5" data-sfx="pop"><svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 018-8"/><path d="M12 4v4l3-1"/><circle cx="12" cy="12" r="2"/><path d="M12 14v4"/></svg>Mistake tracker</div>
+          <div class="feature-row rv" data-at="23" data-sfx="pop"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>Explain answer</div>
+        </div>
+      </div>
+    </div>
+    <div class="col">
+      <div class="tag rv" data-at="21.8" data-sfx="pop">New way</div>
+      <h2 class="big rv" data-at="22.2" data-sfx="whoosh">Meet<br><span class="gr">Kamyab.ai</span></h2>
+      <p class="sub rv" data-at="24">Your phone becomes an intelligent mentor — not another MCQ dump.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 4 -->
+<section class="sc mint" data-sfx="slide">
+  <div class="sc-zoom">
+    <div class="col">
+      <div class="tag rv" data-at="28.1" data-sfx="pop">Feature 01</div>
+      <h2 class="big rv" data-at="28.3" data-sfx="whoosh">AI Concept<br>Search</h2>
+      <p class="sub rv" data-at="28.8">Forgot exact keywords? Type what you remember.</p>
+    </div>
+    <div class="phone">
+      <div class="phone-notch"></div>
+      <div class="phone-screen">
+        <div class="status"><span>9:42</span><span>●●●</span></div>
+        <div class="app-head">
+          <svg class="app-logo logo-mark" viewBox="0 0 100 100">
+            <circle class="ring" cx="50" cy="50" r="42" style="stroke-dashoffset:0;opacity:.4"/>
+            <path class="k-stem" d="M32 22v56" style="stroke-dashoffset:0"/>
+            <path class="k-arm" d="M32 52 L58 28 M36 50 L68 78" style="stroke-dashoffset:0"/>
+            <path class="tick" d="M48 58 L60 70 L82 40" style="stroke-dashoffset:0"/>
+            <circle class="node" cx="32" cy="22" r="4"/><circle class="node" cx="82" cy="40" r="3.5"/>
+          </svg>
+          <div class="app-title" style="font-size:1.2em">Concept Search</div>
+        </div>
+        <div class="ui-search active">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#27b15f" stroke-width="2.5"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3-3"/></svg>
+          <span><span id="typed"></span><span class="cursor"></span></span>
+        </div>
+        <div class="ui-card rv" data-at="32.1" data-sfx="pop" style="border-color:#3fcf7488">
+          <div style="font-weight:800;font-size:1.1em">Battle of Panipat, 1526</div>
+          <div class="ui-muted" style="margin:.35em 0">Q. Who won the First Battle of Panipat?</div>
+          <div style="color:var(--gd);font-weight:700">✓ Babur</div>
+          <span class="badge">✓ Verified · PPSC</span>
+        </div>
+        <div class="ui-card rv" data-at="33.1" data-sfx="pop" style="opacity:.9">
+          <div class="ui-muted">Q. Which dynasty did Babur defeat?</div>
+          <div style="color:var(--gd);font-weight:700;margin-top:.25em">✓ Lodi</div>
+        </div>
+        <div class="rv" data-at="34.3" data-sfx="success" style="color:var(--gd);font-weight:700;font-size:1em;margin-top:.25em">Found in milliseconds</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 5 -->
+<section class="sc mint" data-sfx="slide">
+  <div class="sc-zoom">
+    <div class="col">
+      <div class="tag rv" data-at="36.1" data-sfx="pop">Feature 02</div>
+      <h2 class="big rv" data-at="36.3" data-sfx="whoosh">Spaced<br>Repetition</h2>
+      <p class="sub rv" data-at="36.8">Every mistake is remembered — and retested before you forget.</p>
+    </div>
+    <div class="phone">
+      <div class="phone-notch"></div>
+      <div class="phone-screen">
+        <div class="status"><span>9:43</span><span>●●●</span></div>
+        <div class="app-head"><div class="app-title" style="font-size:1.2em">Weakness Tracker</div></div>
+        <div class="flip" style="height:11em;margin-bottom:.85em" data-at="38.8" data-sfx="flip">
+          <div class="fi">
+            <div class="ff ui-card" style="height:100%;box-sizing:border-box">
+              <div style="font-weight:700;margin-bottom:.55em">Who founded the Mughal Empire in India?</div>
+              <div class="opt wrong rv" data-at="37.2" data-sfx="error">✗ Akbar</div>
+              <div class="opt" style="opacity:.45">Babur</div>
+            </div>
+            <div class="fb ui-card" style="height:100%;box-sizing:border-box;background:var(--gl);border-color:#3fcf7488;display:flex;flex-direction:column;justify-content:center;gap:.45em">
+              <div style="color:var(--gd);font-weight:800;font-size:1.15em">Saved to mistakes</div>
+              <div class="ui-muted">Re-test tomorrow · 10 min quiz</div>
+              <div style="margin-top:.25em;height:.35em;background:#d5e8db;border-radius:1em;overflow:hidden"><div style="width:40%;height:100%;background:var(--g);border-radius:1em"></div></div>
+            </div>
+          </div>
+        </div>
+        <div class="rv" data-at="41.4" data-sfx="pop">
+          <div style="display:flex;justify-content:space-between;font-size:.92em;font-weight:600">
+            <span>Everyday Science</span><span style="color:var(--gd)">82% mastered</span>
+          </div>
+          <div class="bar"><i style="--w:82%;background:var(--g)"></i></div>
+          <div style="display:flex;justify-content:space-between;font-size:.92em;font-weight:600">
+            <span>Pakistan Affairs</span><span style="color:#d08a1f">Needs revision</span>
+          </div>
+          <div class="bar"><i style="--w:34%;background:#f2b84b"></i></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 6 -->
+<section class="sc mint" data-sfx="slide">
+  <div class="sc-zoom">
+    <div class="col">
+      <div class="tag rv" data-at="46.1" data-sfx="pop">Feature 03</div>
+      <h2 class="big rv" data-at="46.3" data-sfx="whoosh">Instant AI<br>Reasoning</h2>
+      <p class="sub rv" data-at="46.8">Know why an answer is right — not just what it is.</p>
+    </div>
+    <div class="phone">
+      <div class="phone-notch"></div>
+      <div class="phone-screen">
+        <div class="status"><span>9:44</span><span>●●●</span></div>
+        <div class="flip" style="height:20.5em;margin-bottom:.65em" data-at="49" data-sfx="flip">
+          <div class="fi">
+            <div class="ff ui-card" style="height:100%;box-sizing:border-box">
+              <div style="font-weight:700;margin-bottom:.65em;line-height:1.35">Which gas is most abundant in Earth's atmosphere?</div>
+              <div class="opt">A · Oxygen</div>
+              <div class="opt">B · Carbon dioxide</div>
+              <div class="opt right">C · Nitrogen ✓</div>
+              <div class="opt">D · Argon</div>
+            </div>
+            <div class="fb reason-panel" style="height:100%;box-sizing:border-box">
+              <b>Why C is correct</b>
+              Nitrogen makes up about 78% of the air. Oxygen is only ~21%. That's why C wins — not a guess.
+            </div>
+          </div>
+        </div>
+        <div class="explain-btn rv" data-at="47.7" data-sfx="click">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
+          Explain answer
+        </div>
+        <div class="rv" data-at="51.2" data-sfx="success" style="margin-top:.55em;color:var(--gd);font-weight:800;font-size:1.25em">Learn 3× faster</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 7 -->
+<section class="sc triumph" data-sfx="whoosh">
+  <div class="sc-zoom">
+    <div class="col" style="text-align:center;max-width:38em">
+      <h2 class="big rv" data-at="54.5" data-sfx="whoosh">Ratta chhoro,<br><span class="gr">smart bano.</span></h2>
+      <div class="notif rv pop" data-at="57.8" data-sfx="success" style="margin:1.3em auto">
+        <div class="notif-icon"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg></div>
+        <div>
+          <span>PPSC Merit List</span>
+          <b>Ali · Status: SELECTED</b>
+        </div>
+      </div>
+      <p class="sub rv" data-at="59.3" style="font-size:1.55em;color:var(--ink);font-weight:600">From preparation to selection.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 8 -->
+<section class="sc brand" data-sfx="whoosh">
+  <div class="sc-zoom">
+    <div class="geo-ring" style="width:20em;height:20em;left:50%;top:30%;margin-left:-10em;margin-top:-10em;animation:pulse-ring 2.8s ease-out infinite"></div>
+    <svg class="brand-mark logo-mark anim rv pop" data-at="65.8" data-sfx="logo" viewBox="0 0 100 100">
+      <circle class="ring" cx="50" cy="50" r="42"/>
+      <path class="k-stem" d="M32 22v56"/>
+      <path class="k-arm" d="M32 52 L58 28 M36 50 L68 78"/>
+      <path class="tick" d="M48 58 L60 70 L82 40"/>
+      <circle class="node" cx="32" cy="22" r="4.5"/>
+      <circle class="node" cx="68" cy="78" r="3.5"/>
+      <circle class="node" cx="82" cy="40" r="4"/>
+      <circle class="node" cx="58" cy="28" r="3"/>
+    </svg>
+    <div class="rv" data-at="66.3" data-sfx="pop" style="font-size:5em;font-weight:800;letter-spacing:0;line-height:1.05">Kamyab<span class="gr">.ai</span></div>
+    <div class="rv" data-at="67.3" style="font-size:1.8em;color:var(--mut);font-weight:600">Ratta Nahi, Smart Prep.</div>
+    <div class="rv" data-at="69.4" style="font-size:1.15em;color:var(--mut);font-weight:500">AI Concept Search · Mistake Tracker · Instant Reasoning</div>
+    <div class="cta-pill rv" data-at="70.6" data-sfx="success">Start free practice now</div>
+    <div class="rv" data-at="71.6" style="font-size:1.4em;font-weight:700">www.kamyab.ai</div>
+  </div>
+</section>
+
+<div id="ov" role="button" tabindex="0">
+  <svg class="logo-mark anim" width="72" height="72" viewBox="0 0 100 100">
+    <circle class="ring" cx="50" cy="50" r="42"/>
+    <path class="k-stem" d="M32 22v56"/>
+    <path class="k-arm" d="M32 52 L58 28 M36 50 L68 78"/>
+    <path class="tick" d="M48 58 L60 70 L82 40"/>
+    <circle class="node" cx="32" cy="22" r="4"/>
+    <circle class="node" cx="82" cy="40" r="3.5"/>
+  </svg>
+  <h2>Kamyab<span class="gr">.ai</span></h2>
+  <p>Ratta Nahi, Smart Prep. · 75-second commercial · sound on</p>
+  <button class="btn" id="go">▶ Play</button>
+</div>
+</div>
+<div id="bar">
+  <button id="pp">Pause</button>
+  <div id="prog"><i></i></div>
+  <span id="tm">0:00 / 1:15</span>
+  <button id="vo">Voice: on</button>
+  <button id="mu">Music: on</button>
+  <button id="fx">SFX: on</button>
+  <button id="fs">Fullscreen</button>
+</div>
+
+<script>
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const S=[[0,6],[6,12],[12,20],[20,28],[28,36],[36,46],[46,54],[54,63],[63,75.5]],END=75.5;
+const ORG=['22% 45%','30% 50%','42% 48%','35% 50%','68% 48%','68% 48%','68% 48%','50% 40%','50% 42%'];
+const ZOOM_IN=[1.14,1.12,1.16,1.1,1.08,1.08,1.08,1.08,1.12];
+const ZOOM_HOLD=[.05,.05,.06,.04,.04,.04,.04,.05,.06];
+const VO=[
+[.4,"2:30 AM… teesra cup chai ka, aur wahi purana masla."],
+[3.6,"Hazaron MCQs… lekin dimaag mein kitne bache?"],
+[6.3,"Scanned PDFs jo khulte nahi… keys jo galat nikalti hain…"],
+[9.6,"…aur wahi purana ‘ratta’ jo exam hall mein bhool jata hai."],
+[12.6,"1 ya 2 marks se reh jana…"],
+[16,"dard mehnat ki kami ka nahi, ghalat tareeqay ka hai."],
+[20.6,"Lekin agar aapka phone sirf MCQs ka dher na ho…"],
+[24.2,"balkay ek mentor ho jo aapki har galti pehchanta ho?"],
+[28.4,"Kamyab.ai. Exact words bhool gaye? Bas jo yaad hai, type kijiye."],
+[36.4,"Aaj ghalat hua? Kamyab.ai yaad rakhta hai — aur bhoolne se pehle dobara test karta hai."],
+[46.4,"Har jawab ki wajah, foran. Guessing khatam."],
+[54.6,"Ratta chhoro, smart bano."],
+[58.4,"Jab preparation intelligent ho, toh kamyabi yaqeen ban jaati hai."],
+[63.8,"Kamyab.ai — aapka personal AI exam partner."],
+[69,"Aaj hi free practice shuru kijiye: kamyab dot ai."]
+];
+let t=0,last=0,playing=false,ac,mg,sg,musicOn=true,voiceOn=true,sfxOn=true,vi=0,typedLen=-1;
+const cl=(v,a,b)=>Math.max(a,Math.min(b,v));
+const ease=k=>1-Math.pow(1-k,3);
+const easeInOut=k=>k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2;
+const scs=$$('.sc'),zooms=$$('.sc-zoom'),rvs=$$('[data-at]'),cv=$('#cv'),cx=cv.getContext('2d');
+const fired=new WeakMap();
+const P=[...Array(140)].map((_,i)=>({
+  a:Math.random()*6.28,r:420+Math.random()*580,k:i/140*6.28,
+  c:i%4?'#3fcf74':'#a6e85a',s:2+Math.random()*3
+}));
+const SS=window.speechSynthesis;if(SS)SS.getVoices();
+
+function say(text){
+  if(!SS||!voiceOn)return;
+  const vs=SS.getVoices();
+  const en=vs.find(v=>/en-IN/i.test(v.lang))||vs.find(v=>/en-GB/i.test(v.lang))||vs.find(v=>/^en/i.test(v.lang));
+  const u=new SpeechSynthesisUtterance(text);
+  if(en){u.voice=en;u.lang=en.lang}
+  u.rate=.95;SS.cancel();SS.speak(u);
+}
+
+function sfx(type){
+  if(!ac||!sfxOn||!sg)return;
+  const now=ac.currentTime;
+  const noiseBuf=(()=>{const b=ac.createBuffer(1,ac.sampleRate*.05,ac.sampleRate);const d=b.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;return b})();
+  const tone=(f,du,v,ty='sine',f2)=>{
+    const o=ac.createOscillator(),g=ac.createGain();
+    o.type=ty;o.frequency.setValueAtTime(f,now);
+    if(f2)o.frequency.exponentialRampToValueAtTime(f2,now+du);
+    g.gain.setValueAtTime(v,now);g.gain.exponentialRampToValueAtTime(.0001,now+du);
+    o.connect(g);g.connect(sg);o.start(now);o.stop(now+du+.02);
+  };
+  const click=()=>{
+    const s=ac.createBufferSource(),g=ac.createGain(),f=ac.createBiquadFilter();
+    s.buffer=noiseBuf;f.type='bandpass';f.frequency.value=2800;f.Q.value=4;
+    g.gain.setValueAtTime(.12,now);g.gain.exponentialRampToValueAtTime(.0001,now+.04);
+    s.connect(f);f.connect(g);g.connect(sg);s.start(now);
+  };
+  if(type==='type'){click();tone(1200+Math.random()*400,.03,.03,'square')}
+  else if(type==='pop'){tone(520,.12,.08,'sine',880);tone(780,.1,.04,'triangle')}
+  else if(type==='slide'){tone(280,.18,.06,'sine',160);click()}
+  else if(type==='flip'){tone(180,.2,.1,'triangle',420);tone(900,.08,.05,'square')}
+  else if(type==='stamp'){tone(90,.25,.14,'sawtooth',60);click()}
+  else if(type==='whoosh'){
+    const s=ac.createBufferSource(),g=ac.createGain(),f=ac.createBiquadFilter();
+    const b=ac.createBuffer(1,ac.sampleRate*.35,ac.sampleRate),d=b.getChannelData(0);
+    for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1)*(1-i/d.length);
+    s.buffer=b;f.type='bandpass';f.frequency.setValueAtTime(400,now);f.frequency.exponentialRampToValueAtTime(2200,now+.3);
+    g.gain.setValueAtTime(.0001,now);g.gain.linearRampToValueAtTime(.18,now+.08);g.gain.exponentialRampToValueAtTime(.0001,now+.35);
+    s.connect(f);f.connect(g);g.connect(sg);s.start(now);
+  }
+  else if(type==='success'){tone(523,.12,.08);tone(659,.14,.07);tone(784,.22,.09)}
+  else if(type==='error'){tone(220,.15,.1,'square',160)}
+  else if(type==='click'){click();tone(660,.06,.05,'sine')}
+  else if(type==='logo'){tone(392,.2,.08);tone(523,.25,.07);tone(784,.4,.1);tone(1046,.5,.06)}
+}
+
+function triggerSfx(el){
+  if(fired.get(el))return;
+  fired.set(el,true);
+  const kind=el.dataset.sfx;if(kind)sfx(kind);
+}
+
+function audio(){
+  ac=new (window.AudioContext||window.webkitAudioContext)();
+  mg=ac.createGain();mg.gain.value=musicOn?.45:0;mg.connect(ac.destination);
+  sg=ac.createGain();sg.gain.value=sfxOn?.7:0;sg.connect(ac.destination);
+  const T=ac.currentTime+.1,nb=ac.createBuffer(1,ac.sampleRate,ac.sampleRate),d=nb.getChannelData(0);
+  for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;
+  const osc=(at,ty,f,du,v,f2)=>{
+    const o=ac.createOscillator(),g=ac.createGain();
+    o.type=ty;o.frequency.setValueAtTime(f,T+at);
+    if(f2)o.frequency.exponentialRampToValueAtTime(f2,T+at+du);
+    g.gain.setValueAtTime(v,T+at);g.gain.exponentialRampToValueAtTime(.0001,T+at+du);
+    o.connect(g);g.connect(mg);o.start(T+at);o.stop(T+at+du+.05);
+  };
+  const nz=(at,du,ty,f0,f1,v,q)=>{
+    const s=ac.createBufferSource(),g=ac.createGain(),f=ac.createBiquadFilter();
+    s.buffer=nb;f.type=ty;f.Q.value=q||1;
+    f.frequency.setValueAtTime(f0,T+at);f.frequency.exponentialRampToValueAtTime(f1,T+at+du);
+    g.gain.setValueAtTime(.0001,T+at);g.gain.linearRampToValueAtTime(v,T+at+du*.3);
+    g.gain.exponentialRampToValueAtTime(.0001,T+at+du);
+    s.connect(f);f.connect(g);g.connect(mg);s.start(T+at);s.stop(T+at+du+.02);
+  };
+  const pad=(at,du,fr,v)=>fr.forEach(f=>{
+    const o=ac.createOscillator(),g=ac.createGain();
+    o.type='triangle';o.frequency.value=f;
+    g.gain.setValueAtTime(0,T+at);g.gain.linearRampToValueAtTime(v,T+at+du*.6);
+    g.gain.linearRampToValueAtTime(0,T+at+du);o.connect(g);g.connect(mg);
+    o.start(T+at);o.stop(T+at+du);
+  });
+  pad(0,22,[110,165],.09);
+  for(let i=0;i<20;i++){osc(i,'square',1900,.03,.035);nz(i+.5,.05,'highpass',7000,7000,.025)}
+  const b=60/112,arp=[262,330,392,523,392,330];
+  for(let x=20,n=0;x<55;x+=b/2,n++){
+    if(n%2==0)osc(x,'sine',130,.2,.45,40);else nz(x,.05,'highpass',7000,7000,.06);
+    osc(x,'triangle',arp[n%6],.18,.05);
+    if(n%8==0)osc(x,'sine',n%16?98:65,b*3.5,.1);
+  }
+  pad(54,10,[262,330,392,523],.05);pad(62,13,[262,392,523,659],.07);
+  [1320,1980,2640].forEach((f,i)=>osc(66+i*.01,'sine',f,3,.12/(i+1)));
+  osc(58,'sine',1568,.5,.1);osc(58.12,'sine',2093,.8,.08);
+  [6,12,20,28,36,46,54,63].forEach(x=>nz(x-.25,.7,'bandpass',300,3500,.35,1.2));
+  osc(20.3,'sine',1200,.8,.08,200);
+}
+
+function frame(now){
+  requestAnimationFrame(frame);
+  if(playing)t+=(now-last)/1000;last=now;
+  if(t>=END&&playing){playing=false;ac&&ac.suspend();SS&&SS.cancel();$('#ov').style.display='flex';$('#go').textContent='↻ Replay'}
+
+  scs.forEach((s,i)=>{
+    const[a,b]=S[i];
+    const zin=ZOOM_IN[i],zhold=ZOOM_HOLD[i];
+    let z,o;
+    if(t<a){z=zin;o=0}
+    else if(t<a+.7){const k=ease((t-a)/.7);z=zin-(zin-1)*k;o=cl((t-a)/.35,0,1)}
+    else if(t<b){z=1+(t-a-.7)/(b-a)*zhold;o=1}
+    else{const k=easeInOut(cl((t-b)/.5,0,1));z=1+zhold+.12*k;o=1-k}
+    s.style.opacity=o;
+    s.style.visibility=o>0?'visible':'hidden';
+    s.style.setProperty('--p',cl((t-a)/(b-a),0,1));
+    if(zooms[i]){
+      zooms[i].style.transform=`scale(${z})`;
+      zooms[i].style.transformOrigin=ORG[i];
+    }
+    if(playing&&o>0.2&&!fired.get(s)&&s.dataset.sfx){fired.set(s,true);sfx(s.dataset.sfx)}
+  });
+
+  rvs.forEach(e=>{
+    const on=t>=+e.dataset.at;
+    const was=e.classList.contains('in');
+    e.classList.toggle('in',on);
+    if(on&&!was)triggerSfx(e);
+  });
+
+  $('#cnt').textContent=Math.floor(cl((t-1.5)/3.6,0,1)*50000).toLocaleString()+'+';
+  $('#score').textContent=Math.round(cl((t-13)/2,0,1)*68);
+
+  const nextLen=Math.floor(cl((t-29)*8.2,0,19));
+  if(playing&&nextLen>typedLen&&nextLen>0){sfx('type');typedLen=nextLen}
+  if(nextLen===0)typedLen=-1;
+  $('#typed').textContent='that battle in 1526'.slice(0,nextLen);
+
+  while(playing&&vi<VO.length&&t>=VO[vi][0]){say(VO[vi][1]);vi++}
+
+  $('#prog i').style.width=cl(t/END*100,0,100)+'%';
+  const m=Math.min(75,Math.floor(t));
+  $('#tm').textContent=`${Math.floor(m/60)}:${String(m%60).padStart(2,'0')} / 1:15`;
+
+  cx.clearRect(0,0,1280,720);
+  if(t>=63&&t<76){
+    const k=cl((t-63)/3.0,0,1),e=ease(k);
+    P.forEach(p=>{
+      const sx=640+Math.cos(p.a)*p.r,sy=360+Math.sin(p.a)*p.r*.55;
+      const tx=640+Math.cos(p.k)*105,ty=255+Math.sin(p.k)*105;
+      cx.globalAlpha=k<1?.95:Math.max(0,1-(t-66)*1.15);
+      cx.fillStyle=p.c;
+      cx.beginPath();
+      cx.arc(sx+(tx-sx)*e,sy+(ty-sy)*e,p.s,0,6.3);
+      cx.fill();
+    });
+  }
+}
+
+function start(){
+  t=0;vi=0;typedLen=-1;playing=true;last=performance.now();
+  rvs.forEach(e=>fired.delete(e));
+  scs.forEach(s=>fired.delete(s));
+  SS&&SS.cancel();ac&&ac.close();audio();
+  $('#ov').style.display='none';$('#pp').textContent='Pause';
+  $$('.logo-mark').forEach(el=>{el.classList.remove('anim');void el.offsetWidth;el.classList.add('anim')});
+}
+$('#ov').onclick=start;
+$('#ov').onkeydown=e=>{if(e.key==='Enter'||e.key===' ')start()};
+$('#pp').onclick=()=>{
+  if(t>=END||!ac)return;
+  playing=!playing;
+  if(playing){ac.resume();SS&&SS.resume()}else{ac.suspend();SS&&SS.pause()}
+  $('#pp').textContent=playing?'Pause':'Play';
+};
+$('#mu').onclick=()=>{musicOn=!musicOn;if(mg)mg.gain.value=musicOn?.45:0;$('#mu').textContent='Music: '+(musicOn?'on':'off')};
+$('#vo').onclick=()=>{voiceOn=!voiceOn;if(!voiceOn&&SS)SS.cancel();$('#vo').textContent='Voice: '+(voiceOn?'on':'off')};
+$('#fx').onclick=()=>{sfxOn=!sfxOn;if(sg)sg.gain.value=sfxOn?.7:0;$('#fx').textContent='SFX: '+(sfxOn?'on':'off')};
+$('#fs').onclick=()=>{try{document.fullscreenElement?document.exitFullscreen():$('#stage').requestFullscreen()}catch(e){}};
+requestAnimationFrame(n=>{last=n;frame(n)});
+</script></body></html>

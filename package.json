@@ -16,6 +16,7 @@
     "embed:status": "node embed-status.js",
     "db:up": "docker compose up -d",
     "db:down": "docker compose down",
+    "db:test-proxy": "node test-rds-proxy.js",
     "test": "HEADLESS=true node scrape.js https://testpointpk.com/important-mcqs/computer",
     "install:browsers": "playwright install chromium"
   },
