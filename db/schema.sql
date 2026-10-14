@@ -72,3 +72,44 @@ CREATE TABLE IF NOT EXISTS mcq_sections (
 );
 
 CREATE INDEX IF NOT EXISTS idx_mcq_sections_section ON mcq_sections (section_id);
+
+-- Categories under a past-paper section (/paper-mcqs/... links)
+CREATE TABLE IF NOT EXISTS categories (
+  id SERIAL PRIMARY KEY,
+  section_id INT NOT NULL REFERENCES sections(id) ON DELETE CASCADE,
+  external_id INT,
+  title TEXT NOT NULL,
+  slug TEXT NOT NULL,
+  url TEXT NOT NULL UNIQUE,
+  max_page INT,
+  sort_order INT NOT NULL DEFAULT 0,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  UNIQUE (section_id, slug)
+);
+
+CREATE INDEX IF NOT EXISTS idx_categories_section ON categories (section_id);
+
+CREATE TABLE IF NOT EXISTS mcq_categories (
+  mcq_id VARCHAR(64) NOT NULL REFERENCES mcqs(source_id) ON DELETE CASCADE,
+  category_id INT NOT NULL REFERENCES categories(id) ON DELETE CASCADE,
+  first_seen_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  PRIMARY KEY (mcq_id, category_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_mcq_categories_category ON mcq_categories (category_id);
+
+-- Resume: which category listing pages are done / pending / failed
+CREATE TABLE IF NOT EXISTS category_crawl_jobs (
+  id SERIAL PRIMARY KEY,
+  category_id INT NOT NULL REFERENCES categories(id) ON DELETE CASCADE,
+  page_num INT NOT NULL,
+  status VARCHAR(16) NOT NULL DEFAULT 'pending',
+  last_error TEXT,
+  attempts INT NOT NULL DEFAULT 0,
+  scraped_at TIMESTAMPTZ,
+  UNIQUE (category_id, page_num)
+);
+
+CREATE INDEX IF NOT EXISTS idx_category_crawl_jobs_pending
+  ON category_crawl_jobs (category_id, status)
+  WHERE status IN ('pending', 'failed', 'running');
